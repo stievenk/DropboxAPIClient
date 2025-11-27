@@ -1,0 +1,21 @@
+{
+    "name": "koyabu/dropboxapi",
+    "description": "Dropbox API",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Koyabu\\DropboxApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Stieven Kalengkian",
+            "email": "stieven.kalengkian@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "guzzlehttp/guzzle": "8.0.x-dev"
+    }
+}
