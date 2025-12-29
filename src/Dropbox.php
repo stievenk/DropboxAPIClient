@@ -28,7 +28,7 @@ class Dropbox
     protected $app_secret = '';
 
     protected $options = [];
-    protected $scope = 'files.metadata.write files.content.write files.content.read sharing.write file_requests.write';
+    protected $scope = 'account_info.read files.metadata.read files.metadata.write files.content.read files.content.write sharing.write file_requests.write';
 
     /** @var Client */
     protected $api;
@@ -192,6 +192,44 @@ class Dropbox
             'body' => json_encode($payload)
         ]);
     }
+
+    public function getSpaceUsage()
+    {
+        if (!$this->ensureAccessTokenAvailable()) return false;
+
+        try {
+            $res = $this->api->request('POST', '/2/users/get_space_usage', [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->access_token}",
+                    // 'Content-Type'  => 'application/json'
+                ],
+                // 'body' => '{}',          // ⬅️ PENTING
+                'http_errors' => false   // ⬅️ supaya bisa baca status code
+            ]);
+            
+            $status = $res->getStatusCode();
+            $body   = trim((string)$res->getBody());
+
+            if ($status !== 200) {
+                return $this->setError("Dropbox API returned HTTP {$status}: {$body}");
+            }
+
+            if ($body === '') {
+                return $this->setError("Empty response from Dropbox (token ok, but no data)");
+            }
+
+            return json_decode($body, true);
+
+        } catch (RequestException $e) {
+            $msg = $e->hasResponse()
+                ? (string)$e->getResponse()->getBody()
+                : $e->getMessage();
+
+            return $this->setError($msg);
+        }
+    }
+
+
 
     public function upload(string $localFile, string $path = '')
     {
